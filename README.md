@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # 🐶 Tienda de Alimentos para Perritos
 
 Aplicación web de 3 capas con pipeline CI/CD completo implementado en GitHub Actions.
@@ -286,3 +287,6 @@ Todos los contenidos fueron revisados, validados y adaptados por el equipo segú
 Referencia: https://bibliotecas.duoc.cl/ia
 
 
+=======
+# EP3-DevOps
+>>>>>>> 5f3ca8d7266b91d8216268707e2fd7412ba5d283
