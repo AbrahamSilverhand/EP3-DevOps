@@ -72,24 +72,31 @@ jobs:
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 
-      - name: Verificar Quality Gate (API REST manual)
+      - name: Verificar Quality Gate (API REST manual con reintentos)
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         run: |
-          echo "Esperando que SonarCloud procese el análisis..."
-          sleep 15
+          STATUS="NONE"
+          ATTEMPTS=0
+          MAX_ATTEMPTS=12
 
-          RESPONSE=$(curl -s -H "Authorization: Bearer ${SONAR_TOKEN}" \
-            "https://sonarcloud.io/api/qualitygates/project_status?projectKey=joralbornoz_ep3-devops-tienda-perritos")
+          while [ "$STATUS" = "NONE" ] && [ $ATTEMPTS -lt $MAX_ATTEMPTS ]; do
+            ATTEMPTS=$((ATTEMPTS+1))
+            echo "Intento $ATTEMPTS/$MAX_ATTEMPTS - consultando estado del Quality Gate..."
+            sleep 10
 
-          echo "Respuesta de SonarCloud: $RESPONSE"
+            RESPONSE=$(curl -s -H "Authorization: Bearer ${SONAR_TOKEN}" \
+              "https://sonarcloud.io/api/qualitygates/project_status?projectKey=joralbornoz_ep3-devops-tienda-perritos")
 
-          STATUS=$(echo "$RESPONSE" | grep -o '"status":"[A-Z]*"' | head -1 | cut -d'"' -f4)
+            STATUS=$(echo "$RESPONSE" | grep -o '"status":"[A-Z]*"' | head -1 | cut -d'"' -f4)
+            echo "  -> status actual: $STATUS"
+          done
 
+          echo "Respuesta final: $RESPONSE"
           echo "Quality Gate status: $STATUS"
 
           if [ "$STATUS" != "OK" ]; then
-            echo "❌ Quality Gate FALLÓ. Deteniendo el pipeline."
+            echo "❌ Quality Gate FALLÓ (o no se pudo calcular a tiempo). Deteniendo el pipeline."
             exit 1
           else
             echo "✅ Quality Gate OK. Continuando el pipeline."
