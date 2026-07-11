@@ -5,6 +5,10 @@ const mysql = require("mysql2/promise");
 const app = express();
 const PORT = process.env.PORT || 3001;
 
+// Ocultar el header "X-Powered-By" para no exponer la versión de Express
+// (hallazgo de seguridad detectado por SonarCloud: "framework implicitly discloses version").
+app.disable("x-powered-by");
+
 const {
   DB_HOST = "db",
   DB_USER = "root",
@@ -27,6 +31,7 @@ async function initDb() {
       password: DB_PASSWORD,
       database: DB_NAME,
       port: DB_PORT,
+      charset: "utf8mb4",
       waitForConnections: true,
       connectionLimit: 10,
       queueLimit: 0,
