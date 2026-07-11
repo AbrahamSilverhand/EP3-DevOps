@@ -150,6 +150,27 @@ jobs:
           docker push $REGISTRY/tienda-perritos-db:${{ github.sha }}
           docker push $REGISTRY/tienda-perritos-db:latest
 
+      - name: Login en Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Publicar imágenes en Docker Hub
+        env:
+          REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          DH_USER: ${{ secrets.DOCKERHUB_USERNAME }}
+        run: |
+          docker tag $REGISTRY/tienda-perritos-backend:${{ github.sha }} $DH_USER/tienda-perritos-backend:${{ github.sha }}
+          docker tag $REGISTRY/tienda-perritos-backend:${{ github.sha }} $DH_USER/tienda-perritos-backend:latest
+          docker push $DH_USER/tienda-perritos-backend:${{ github.sha }}
+          docker push $DH_USER/tienda-perritos-backend:latest
+
+          docker tag $REGISTRY/tienda-perritos-frontend:${{ github.sha }} $DH_USER/tienda-perritos-frontend:${{ github.sha }}
+          docker tag $REGISTRY/tienda-perritos-frontend:${{ github.sha }} $DH_USER/tienda-perritos-frontend:latest
+          docker push $DH_USER/tienda-perritos-frontend:${{ github.sha }}
+          docker push $DH_USER/tienda-perritos-frontend:latest
+
       - name: 🔒 Verificar vulnerabilidades críticas (ECR scan)
         env:
           REGISTRY: ${{ steps.login-ecr.outputs.registry }}
